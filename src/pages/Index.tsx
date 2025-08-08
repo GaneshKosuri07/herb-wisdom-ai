@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { DatabaseUpload } from "@/components/DatabaseUpload";
+import { useState, useEffect } from "react";
 import { SearchForm } from "@/components/SearchForm";
 import { SearchResults } from "@/components/SearchResults";
 import { findMatchingPlants, getSearchInsights } from "@/utils/nlpMatcher";
@@ -30,11 +29,12 @@ const Index = () => {
   const [currentQuery, setCurrentQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
-  const handleDatabaseUpload = (uploadedPlants: Plant[]) => {
-    setPlants(uploadedPlants);
-    setSearchResults([]);
-    setCurrentQuery("");
-  };
+  // Load sample plant data on component mount
+  useEffect(() => {
+    import("@/data/samplePlants").then(({ samplePlants }) => {
+      setPlants(samplePlants);
+    });
+  }, []);
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
@@ -97,17 +97,11 @@ const Index = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto space-y-8">
           
-          {/* Database Upload Section */}
-          <DatabaseUpload 
-            onDatabaseUpload={handleDatabaseUpload}
-            isLoaded={plants.length > 0}
-          />
-          
           {/* Search Form */}
           <SearchForm 
             onSearch={handleSearch}
             isLoading={isSearching}
-            hasDatabase={plants.length > 0}
+            hasDatabase={true}
           />
           
           {/* Search Results */}
@@ -120,25 +114,15 @@ const Index = () => {
           )}
           
           {/* App Info */}
-          {plants.length === 0 && !currentQuery && (
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              <div className="text-center p-6 bg-card rounded-lg shadow-soft border border-secondary/50">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Leaf className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-serif font-semibold text-lg mb-2">Upload Database</h3>
-                <p className="text-sm text-muted-foreground">
-                  Start by uploading your JSON plant database or use our sample data to get started.
-                </p>
-              </div>
-              
+          {!currentQuery && (
+            <div className="grid md:grid-cols-2 gap-6 mt-12">
               <div className="text-center p-6 bg-card rounded-lg shadow-soft border border-secondary/50">
                 <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="font-serif font-semibold text-lg mb-2">Describe Symptoms</h3>
+                <h3 className="font-serif font-semibold text-lg mb-2">Describe Your Health Concern</h3>
                 <p className="text-sm text-muted-foreground">
-                  Use natural language to describe health concerns. Our AI will understand and match relevant plants.
+                  Simply describe your symptoms or health concerns in natural language, and our AI will find matching plant remedies.
                 </p>
               </div>
               
@@ -146,9 +130,9 @@ const Index = () => {
                 <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-6 h-6 text-success" />
                 </div>
-                <h3 className="font-serif font-semibold text-lg mb-2">Get Recommendations</h3>
+                <h3 className="font-serif font-semibold text-lg mb-2">Get Plant Recommendations</h3>
                 <p className="text-sm text-muted-foreground">
-                  Receive personalized plant recommendations with detailed information about benefits and usage.
+                  Receive personalized plant recommendations with images, detailed benefits, active components, and usage instructions.
                 </p>
               </div>
             </div>
