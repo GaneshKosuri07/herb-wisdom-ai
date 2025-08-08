@@ -1,42 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Nature-inspired design system for plant remedy finder */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core nature palette */
+    --background: 48 20% 97%;
+    --foreground: 155 25% 15%;
 
+    /* Card and surface colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 155 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 155 25% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Deep forest green */
+    --primary: 155 85% 25%;
+    --primary-foreground: 48 20% 97%;
+    --primary-light: 155 45% 35%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Sage green */
+    --secondary: 110 15% 85%;
+    --secondary-foreground: 155 25% 15%;
+    --secondary-dark: 110 20% 65%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted earth tones */
+    --muted: 45 15% 92%;
+    --muted-foreground: 155 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Warm amber */
+    --accent: 42 88% 65%;
+    --accent-foreground: 155 25% 15%;
+    --accent-light: 42 88% 75%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Additional nature colors */
+    --success: 145 70% 45%;
+    --success-foreground: 48 20% 97%;
+    
+    --warning: 35 85% 55%;
+    --warning-foreground: 155 25% 15%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 48 20% 97%;
 
-    --radius: 0.5rem;
+    /* Borders and inputs */
+    --border: 110 15% 85%;
+    --input: 110 15% 92%;
+    --ring: 155 85% 25%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(155 85% 25%), hsl(155 45% 35%));
+    --gradient-secondary: linear-gradient(135deg, hsl(110 15% 85%), hsl(45 15% 92%));
+    --gradient-accent: linear-gradient(135deg, hsl(42 88% 65%), hsl(42 88% 75%));
+    --gradient-hero: linear-gradient(135deg, hsl(155 85% 25%), hsl(155 45% 35%), hsl(42 88% 65%));
+
+    /* Shadows with nature theme */
+    --shadow-soft: 0 2px 8px hsl(155 25% 15% / 0.08);
+    --shadow-medium: 0 4px 12px hsl(155 25% 15% / 0.12);
+    --shadow-strong: 0 8px 24px hsl(155 25% 15% / 0.16);
+    --shadow-accent: 0 4px 16px hsl(42 88% 65% / 0.25);
+
+    /* Animation and transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bouncy: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
