@@ -7,15 +7,16 @@ import { Upload, FileText, Check, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DatabaseUploadProps {
-  onDatabaseUpload: (plants: any[]) => void;
-  isLoaded: boolean;
+  onUploadSuccess?: () => void;
 }
 
-export const DatabaseUpload = ({ onDatabaseUpload, isLoaded }: DatabaseUploadProps) => {
+export const DatabaseUpload = ({ onUploadSuccess }: DatabaseUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
     try {
       const text = await file.text();
       const data = JSON.parse(text);
@@ -35,7 +36,11 @@ export const DatabaseUpload = ({ onDatabaseUpload, isLoaded }: DatabaseUploadPro
         throw new Error("Each plant must have at least 'name' and 'benefits' fields");
       }
 
-      onDatabaseUpload(data);
+      // Import and use the upload service
+      const { uploadPlantsData } = await import("@/services/plantService");
+      await uploadPlantsData(data);
+      
+      onUploadSuccess?.();
       toast({
         title: "Database uploaded successfully!",
         description: `Loaded ${data.length} plants`,
@@ -47,6 +52,8 @@ export const DatabaseUpload = ({ onDatabaseUpload, isLoaded }: DatabaseUploadPro
         description: error instanceof Error ? error.message : "Invalid JSON format",
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -75,57 +82,64 @@ export const DatabaseUpload = ({ onDatabaseUpload, isLoaded }: DatabaseUploadPro
     }
   };
 
-  const generateSampleData = () => {
-    const samplePlants = [
-      {
-        id: "sample-1",
-        name: "Turmeric",
-        scientificName: "Curcuma longa",
-        description: "A golden spice with powerful anti-inflammatory properties",
-        benefits: ["anti-inflammatory", "antioxidant", "pain relief", "digestive health", "immune support"],
-        components: ["curcumin", "turmeric oil", "protein", "fiber"],
-        usageMethods: ["Tea preparation", "Powder in meals", "Topical paste"],
-        precautions: ["May interact with blood thinners", "Avoid high doses during pregnancy"]
-      },
-      {
-        id: "sample-2",
-        name: "Ginger",
-        scientificName: "Zingiber officinale",
-        description: "A warming root known for digestive and anti-nausea properties",
-        benefits: ["nausea relief", "digestive aid", "anti-inflammatory", "circulation", "immune support"],
-        components: ["gingerol", "shogaol", "zingerone"],
-        usageMethods: ["Fresh tea", "Dried powder", "Essential oil"],
-        precautions: ["May increase bleeding risk", "Limit intake with gallstones"]
-      },
-      {
-        id: "sample-3",
-        name: "Aloe Vera",
-        scientificName: "Aloe barbadensis",
-        description: "A succulent plant renowned for skin healing and soothing properties",
-        benefits: ["skin healing", "burns relief", "digestive health", "hydration", "anti-inflammatory"],
-        components: ["aloin", "polysaccharides", "amino acids", "vitamins"],
-        usageMethods: ["Topical gel", "Juice (inner leaf)", "Supplements"],
-        precautions: ["Avoid whole leaf preparations", "May cause digestive upset"]
-      }
-    ];
+  const generateSampleData = async () => {
+    setIsUploading(true);
+    try {
+      const samplePlants = [
+        {
+          name: "Turmeric",
+          scientific_name: "Curcuma longa",
+          description: "A golden spice with powerful anti-inflammatory properties",
+          benefits: ["anti-inflammatory", "antioxidant", "pain relief", "digestive health", "immune support"],
+          components: "curcumin, turmeric oil, protein, fiber",
+          usage_methods: ["Tea preparation", "Powder in meals", "Topical paste"],
+          precautions: ["May interact with blood thinners", "Avoid high doses during pregnancy"]
+        },
+        {
+          name: "Ginger",
+          scientific_name: "Zingiber officinale",
+          description: "A warming root known for digestive and anti-nausea properties",
+          benefits: ["nausea relief", "digestive aid", "anti-inflammatory", "circulation", "immune support"],
+          components: "gingerol, shogaol, zingerone",
+          usage_methods: ["Fresh tea", "Dried powder", "Essential oil"],
+          precautions: ["May increase bleeding risk", "Limit intake with gallstones"]
+        },
+        {
+          name: "Aloe Vera",
+          scientific_name: "Aloe barbadensis",
+          description: "A succulent plant renowned for skin healing and soothing properties",
+          benefits: ["skin healing", "burns relief", "digestive health", "hydration", "anti-inflammatory"],
+          components: "aloin, polysaccharides, amino acids, vitamins",
+          usage_methods: ["Topical gel", "Juice (inner leaf)", "Supplements"],
+          precautions: ["Avoid whole leaf preparations", "May cause digestive upset"]
+        }
+      ];
 
-    onDatabaseUpload(samplePlants);
-    toast({
-      title: "Sample database loaded!",
-      description: "Loaded 3 sample plants for testing",
-      variant: "default",
-    });
+      const { uploadPlantsData } = await import("@/services/plantService");
+      await uploadPlantsData(samplePlants);
+      
+      onUploadSuccess?.();
+      toast({
+        title: "Sample database loaded!",
+        description: "Loaded 3 sample plants for testing",
+        variant: "default",
+      });
+    } catch (error) {
+      toast({
+        title: "Error loading sample data",
+        description: error instanceof Error ? error.message : "Failed to load sample data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
     <Card className="shadow-medium border-secondary/50">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-primary">
-          {isLoaded ? (
-            <Check className="w-5 h-5 text-success" />
-          ) : (
-            <FileText className="w-5 h-5" />
-          )}
+          <FileText className="w-5 h-5" />
           Plant Database
         </CardTitle>
         <CardDescription>
@@ -134,54 +148,43 @@ export const DatabaseUpload = ({ onDatabaseUpload, isLoaded }: DatabaseUploadPro
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {!isLoaded ? (
-          <>
-            <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition-smooth ${
-                isDragging 
-                  ? "border-primary bg-primary/5" 
-                  : "border-secondary hover:border-primary/50 hover:bg-secondary/20"
-              }`}
-              onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}
-              onDragEnter={() => setIsDragging(true)}
-              onDragLeave={() => setIsDragging(false)}
-            >
-              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground mb-2">
-                Drag and drop your JSON file here, or click to browse
-              </p>
-              <Label htmlFor="file-upload">
-                <Button variant="outline" size="sm" className="cursor-pointer">
-                  Browse Files
-                </Button>
-              </Label>
-              <Input
-                id="file-upload"
-                type="file"
-                accept=".json"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-            
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">
-                Don't have a database ready?
-              </p>
-              <Button variant="secondary" size="sm" onClick={generateSampleData}>
-                Load Sample Data
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center gap-2 p-4 bg-success/10 border border-success/20 rounded-lg">
-            <Check className="w-5 h-5 text-success" />
-            <span className="text-sm font-medium text-success-foreground">
-              Database loaded successfully
-            </span>
-          </div>
-        )}
+        <div
+          className={`border-2 border-dashed rounded-lg p-6 text-center transition-smooth ${
+            isDragging 
+              ? "border-primary bg-primary/5" 
+              : "border-secondary hover:border-primary/50 hover:bg-secondary/20"
+          }`}
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onDragEnter={() => setIsDragging(true)}
+          onDragLeave={() => setIsDragging(false)}
+        >
+          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground mb-2">
+            Drag and drop your JSON file here, or click to browse
+          </p>
+          <Label htmlFor="file-upload">
+            <Button variant="outline" size="sm" className="cursor-pointer" disabled={isUploading}>
+              {isUploading ? 'Uploading...' : 'Browse Files'}
+            </Button>
+          </Label>
+          <Input
+            id="file-upload"
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
+        
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground mb-2">
+            Don't have a database ready?
+          </p>
+          <Button variant="secondary" size="sm" onClick={generateSampleData} disabled={isUploading}>
+            {isUploading ? 'Loading...' : 'Load Sample Data'}
+          </Button>
+        </div>
 
         <div className="bg-muted/50 rounded-lg p-3">
           <div className="flex items-start gap-2">

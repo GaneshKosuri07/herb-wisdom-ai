@@ -3,23 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlantCard } from "./PlantCard";
 import { Search, Lightbulb, Target } from "lucide-react";
 
-interface Plant {
-  id: string;
-  name: string;
-  scientificName?: string;
-  benefits: string[];
-  components: string[];
-  description?: string;
-  usageMethods?: string[];
-  precautions?: string[];
-}
-
-interface MatchResult {
-  plant: Plant;
-  score: number;
-  matchedBenefits: string[];
-  matchedTerms: string[];
-}
+import { type Plant, type MatchResult } from "@/services/plantService";
 
 interface SearchResultsProps {
   results: MatchResult[];

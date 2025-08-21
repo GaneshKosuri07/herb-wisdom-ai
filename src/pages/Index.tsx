@@ -1,54 +1,64 @@
 import { useState, useEffect } from "react";
 import { SearchForm } from "@/components/SearchForm";
 import { SearchResults } from "@/components/SearchResults";
-import { findMatchingPlants, getSearchInsights } from "@/utils/nlpMatcher";
-import { Leaf, Heart, Sparkles } from "lucide-react";
+import { DatabaseUpload } from "@/components/DatabaseUpload";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { searchRemedies, getPlantsCount, type MatchResult, type SearchInsights } from "@/services/plantService";
+import { Leaf, Heart, Sparkles, Database, Search, Shield } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-plants.jpg";
 
-interface Plant {
-  id: string;
-  name: string;
-  scientificName?: string;
-  benefits: string[];
-  components: string[];
-  description?: string;
-  usageMethods?: string[];
-  precautions?: string[];
-}
-
-interface MatchResult {
-  plant: Plant;
-  score: number;
-  matchedBenefits: string[];
-  matchedTerms: string[];
-}
+// Types moved to plantService.ts
 
 const Index = () => {
-  const [plants, setPlants] = useState<Plant[]>([]);
   const [searchResults, setSearchResults] = useState<MatchResult[]>([]);
+  const [searchInsights, setSearchInsights] = useState<SearchInsights | undefined>();
   const [currentQuery, setCurrentQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [plantsCount, setPlantsCount] = useState(0);
 
-  // Load sample plant data on component mount
+  // Check if we have plants data
   useEffect(() => {
-    import("@/data/samplePlants").then(({ samplePlants }) => {
-      setPlants(samplePlants);
-    });
+    const checkPlantsData = async () => {
+      const count = await getPlantsCount();
+      setPlantsCount(count);
+    };
+    
+    checkPlantsData();
   }, []);
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
     setCurrentQuery(query);
     
-    // Simulate API delay for better UX
-    setTimeout(() => {
-      const results = findMatchingPlants(query, plants);
-      setSearchResults(results);
+    try {
+      const response = await searchRemedies(query);
+      setSearchResults(response.results);
+      setSearchInsights(response.searchInsights);
+      
+      if (response.results.length === 0) {
+        toast({
+          title: "No matches found",
+          description: "Try using more specific health terms or upload plant data.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Search completed",
+          description: `Found ${response.results.length} matching remedies.`,
+        });
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "Search failed",
+        description: "Please try again or check your connection.",
+        variant: "destructive"
+      });
+    } finally {
       setIsSearching(false);
-    }, 800);
+    }
   };
-
-  const searchInsights = currentQuery ? getSearchInsights(currentQuery) : undefined;
 
   return (
     <div className="min-h-screen bg-gradient-secondary">
@@ -101,7 +111,7 @@ const Index = () => {
           <SearchForm 
             onSearch={handleSearch}
             isLoading={isSearching}
-            hasDatabase={true}
+            hasDatabase={plantsCount > 0}
           />
           
           {/* Search Results */}
@@ -116,27 +126,84 @@ const Index = () => {
           {/* App Info */}
           {!currentQuery && (
             <div className="grid md:grid-cols-2 gap-6 mt-12">
-              <div className="text-center p-6 bg-card rounded-lg shadow-soft border border-secondary/50">
-                <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="font-serif font-semibold text-lg mb-2">Describe Your Health Concern</h3>
-                <p className="text-sm text-muted-foreground">
-                  Simply describe your symptoms or health concerns in natural language, and our AI will find matching plant remedies.
-                </p>
-              </div>
-              
-              <div className="text-center p-6 bg-card rounded-lg shadow-soft border border-secondary/50">
-                <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart className="w-6 h-6 text-success" />
-                </div>
-                <h3 className="font-serif font-semibold text-lg mb-2">Get Plant Recommendations</h3>
-                <p className="text-sm text-muted-foreground">
-                  Receive personalized plant recommendations with images, detailed benefits, active components, and usage instructions.
-                </p>
-              </div>
+              <Card className="shadow-medium border-secondary/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Database className="w-5 h-5" />
+                    Upload Plant Database
+                  </CardTitle>
+                  <CardDescription>
+                    Upload your JSON file containing plant remedy data to get started.
+                    {plantsCount > 0 && (
+                      <span className="block mt-1 text-success">
+                        ✓ {plantsCount} plants loaded
+                      </span>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DatabaseUpload onUploadSuccess={() => {
+                    // Refresh plants count
+                    getPlantsCount().then(setPlantsCount);
+                  }} />
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-medium border-secondary/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Search className="w-5 h-5" />
+                    How It Works
+                  </CardTitle>
+                  <CardDescription>
+                    Advanced NLP processes your queries to find the best plant remedies.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-medium text-accent">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm">Tokenization & Normalization</h4>
+                      <p className="text-xs text-muted-foreground">Breaks down your query into meaningful words</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-medium text-accent">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm">Synonym Mapping</h4>
+                      <p className="text-xs text-muted-foreground">Maps terms like "BP" to "hypertension"</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-medium text-accent">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm">Smart Matching</h4>
+                      <p className="text-xs text-muted-foreground">Finds relevant plants based on benefits & components</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
+
+          {/* Disclaimer */}
+          <div className="mt-12 p-4 bg-warning/10 border border-warning/20 rounded-lg">
+            <div className="flex items-center gap-2 text-warning-foreground">
+              <Shield className="w-4 h-4" />
+              <p className="text-sm font-medium">Educational purposes only. Not medical advice.</p>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Always consult with healthcare professionals before using herbal remedies.
+            </p>
+          </div>
         </div>
       </div>
     </div>
