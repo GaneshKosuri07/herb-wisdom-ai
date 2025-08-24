@@ -8,10 +8,10 @@ import { Search, Sparkles, AlertTriangle } from "lucide-react";
 interface SearchFormProps {
   onSearch: (query: string) => void;
   isLoading: boolean;
-  hasDatabase: boolean;
+  hasDatabase?: boolean;
 }
 
-export const SearchForm = ({ onSearch, isLoading, hasDatabase }: SearchFormProps) => {
+export const SearchForm = ({ onSearch, isLoading, hasDatabase = true }: SearchFormProps) => {
   const [query, setQuery] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {

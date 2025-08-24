@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Plant {
-  id: number;
+  id: string;
   name: string;
   scientific_name?: string;
   benefits: string[];
@@ -50,55 +50,5 @@ export const searchRemedies = async (query: string): Promise<SearchResponse> => 
   } catch (error) {
     console.error('Search service error:', error);
     throw error;
-  }
-};
-
-export const uploadPlantsData = async (plantsData: any[]): Promise<void> => {
-  try {
-    // Transform the data to match our schema
-    const transformedData = plantsData.map(plant => ({
-      name: plant.name || plant.plantName,
-      scientific_name: plant.scientificName || plant.scientific_name,
-      benefits: Array.isArray(plant.benefits) ? plant.benefits : [plant.benefits].filter(Boolean),
-      components: Array.isArray(plant.components) ? plant.components.join(', ') : plant.components || '',
-      usage_methods: Array.isArray(plant.usageMethods) ? plant.usageMethods : 
-                     Array.isArray(plant.usage_methods) ? plant.usage_methods : [],
-      precautions: Array.isArray(plant.precautions) ? plant.precautions : [],
-      description: plant.description || '',
-      image_url: plant.imageUrl || plant.image_url
-    }));
-
-    // Insert data into Supabase
-    const { error } = await supabase
-      .from('plants')
-      .insert(transformedData);
-
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error(`Failed to upload plants data: ${error.message}`);
-    }
-
-    console.log(`Successfully uploaded ${transformedData.length} plants`);
-  } catch (error) {
-    console.error('Upload service error:', error);
-    throw error;
-  }
-};
-
-export const getPlantsCount = async (): Promise<number> => {
-  try {
-    const { count, error } = await supabase
-      .from('plants')
-      .select('*', { count: 'exact', head: true });
-
-    if (error) {
-      console.error('Count error:', error);
-      return 0;
-    }
-
-    return count || 0;
-  } catch (error) {
-    console.error('Count service error:', error);
-    return 0;
   }
 };

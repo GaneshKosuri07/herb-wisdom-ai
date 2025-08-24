@@ -2,16 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Leaf, Heart, Star } from "lucide-react";
 
-interface Plant {
-  id: string;
-  name: string;
-  scientificName?: string;
-  benefits: string[];
-  components: string[];
-  description?: string;
-  usageMethods?: string[];
-  precautions?: string[];
-}
+import { type Plant } from "@/services/plantService";
 
 interface PlantCardProps {
   plant: Plant;
@@ -28,9 +19,9 @@ export const PlantCard = ({ plant, matchedBenefits = [] }: PlantCardProps) => {
               <Leaf className="w-5 h-5 text-success" />
               {plant.name}
             </CardTitle>
-            {plant.scientificName && (
+            {plant.scientific_name && (
               <CardDescription className="italic text-muted-foreground">
-                {plant.scientificName}
+                {plant.scientific_name}
               </CardDescription>
             )}
           </div>
@@ -69,28 +60,26 @@ export const PlantCard = ({ plant, matchedBenefits = [] }: PlantCardProps) => {
             </div>
           </div>
 
-          {plant.components && plant.components.length > 0 && (
+          {plant.components && (
             <div>
               <h4 className="text-sm font-semibold text-foreground mb-2">
                 Active Components
               </h4>
               <div className="flex flex-wrap gap-1">
-                {plant.components.map((component, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {component}
-                  </Badge>
-                ))}
+                <Badge variant="outline" className="text-xs">
+                  {plant.components}
+                </Badge>
               </div>
             </div>
           )}
 
-          {plant.usageMethods && plant.usageMethods.length > 0 && (
+          {plant.usage_methods && plant.usage_methods.length > 0 && (
             <div>
               <h4 className="text-sm font-semibold text-foreground mb-2">
                 Usage Methods
               </h4>
               <ul className="text-xs text-muted-foreground space-y-1">
-                {plant.usageMethods.map((method, index) => (
+                {plant.usage_methods.map((method, index) => (
                   <li key={index} className="flex items-start gap-1">
                     <span className="text-accent">•</span>
                     {method}

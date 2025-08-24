@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { SearchForm } from "@/components/SearchForm";
 import { SearchResults } from "@/components/SearchResults";
-import { DatabaseUpload } from "@/components/DatabaseUpload";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { searchRemedies, getPlantsCount, type MatchResult, type SearchInsights } from "@/services/plantService";
+import { searchRemedies, type MatchResult, type SearchInsights } from "@/services/plantService";
 import { Leaf, Heart, Sparkles, Database, Search, Shield } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-plants.jpg";
@@ -15,17 +15,6 @@ const Index = () => {
   const [searchInsights, setSearchInsights] = useState<SearchInsights | undefined>();
   const [currentQuery, setCurrentQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [plantsCount, setPlantsCount] = useState(0);
-
-  // Check if we have plants data
-  useEffect(() => {
-    const checkPlantsData = async () => {
-      const count = await getPlantsCount();
-      setPlantsCount(count);
-    };
-    
-    checkPlantsData();
-  }, []);
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
@@ -111,7 +100,6 @@ const Index = () => {
           <SearchForm 
             onSearch={handleSearch}
             isLoading={isSearching}
-            hasDatabase={plantsCount > 0}
           />
           
           {/* Search Results */}
@@ -125,73 +113,48 @@ const Index = () => {
           
           {/* App Info */}
           {!currentQuery && (
-            <div className="grid md:grid-cols-2 gap-6 mt-12">
-              <Card className="shadow-medium border-secondary/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <Database className="w-5 h-5" />
-                    Upload Plant Database
-                  </CardTitle>
-                  <CardDescription>
-                    Upload your JSON file containing plant remedy data to get started.
-                    {plantsCount > 0 && (
-                      <span className="block mt-1 text-success">
-                        ✓ {plantsCount} plants loaded
-                      </span>
-                    )}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <DatabaseUpload onUploadSuccess={() => {
-                    // Refresh plants count
-                    getPlantsCount().then(setPlantsCount);
-                  }} />
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-medium border-secondary/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <Search className="w-5 h-5" />
-                    How It Works
-                  </CardTitle>
-                  <CardDescription>
-                    Advanced NLP processes your queries to find the best plant remedies.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-medium text-accent">1</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm">Tokenization & Normalization</h4>
-                      <p className="text-xs text-muted-foreground">Breaks down your query into meaningful words</p>
-                    </div>
+            <Card className="shadow-medium border-secondary/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-primary">
+                  <Search className="w-5 h-5" />
+                  How It Works
+                </CardTitle>
+                <CardDescription>
+                  Advanced NLP processes your queries to find the best plant remedies.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-medium text-accent">1</span>
                   </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-medium text-accent">2</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm">Synonym Mapping</h4>
-                      <p className="text-xs text-muted-foreground">Maps terms like "BP" to "hypertension"</p>
-                    </div>
+                  <div>
+                    <h4 className="font-medium text-sm">Tokenization & Normalization</h4>
+                    <p className="text-xs text-muted-foreground">Breaks down your query into meaningful words</p>
                   </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-medium text-accent">3</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm">Smart Matching</h4>
-                      <p className="text-xs text-muted-foreground">Finds relevant plants based on benefits & components</p>
-                    </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-medium text-accent">2</span>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <div>
+                    <h4 className="font-medium text-sm">Synonym Mapping</h4>
+                    <p className="text-xs text-muted-foreground">Maps terms like "BP" to "hypertension"</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-medium text-accent">3</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm">Smart Matching</h4>
+                    <p className="text-xs text-muted-foreground">Finds relevant plants based on benefits & components</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {/* Disclaimer */}
