@@ -111,51 +111,6 @@ const Index = () => {
             />
           )}
           
-          {/* App Info */}
-          {!currentQuery && (
-            <Card className="shadow-medium border-secondary/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-primary">
-                  <Search className="w-5 h-5" />
-                  How It Works
-                </CardTitle>
-                <CardDescription>
-                  Advanced NLP processes your queries to find the best plant remedies.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-medium text-accent">1</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm">Tokenization & Normalization</h4>
-                    <p className="text-xs text-muted-foreground">Breaks down your query into meaningful words</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-medium text-accent">2</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm">Synonym Mapping</h4>
-                    <p className="text-xs text-muted-foreground">Maps terms like "BP" to "hypertension"</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-medium text-accent">3</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm">Smart Matching</h4>
-                    <p className="text-xs text-muted-foreground">Finds relevant plants based on benefits & components</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Disclaimer */}
           <div className="mt-12 p-4 bg-warning/10 border border-warning/20 rounded-lg">
